@@ -59,12 +59,15 @@ class ProfileScreenState extends State<ProfileScreen> {
 
   getOtherPagesData() {
     Future.delayed(Duration.zero, () {
-      context.read<OtherPageCubit>().getOtherPage(context: context, langId: context.read<AppLocalizationCubit>().state.id);
+      context.read<OtherPageCubit>().getOtherPage(
+          context: context,
+          langId: context.read<AppLocalizationCubit>().state.id);
     });
   }
 
   Widget pagesBuild() {
-    return BlocBuilder<OtherPageCubit, OtherPageState>(builder: (context, state) {
+    return BlocBuilder<OtherPageCubit, OtherPageState>(
+        builder: (context, state) {
       if (state is OtherPageFetchSuccess) {
         return ScrollConfiguration(
           behavior: GlobalScrollBehavior(),
@@ -73,8 +76,15 @@ class ProfileScreenState extends State<ProfileScreen> {
               padding: EdgeInsets.zero,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: state.otherPage.length,
-              itemBuilder: ((context, index) =>
-                  setDrawerItem(state.otherPage[index].title!, Icons.info_rounded, false, true, false, 7, image: state.otherPage[index].image!, desc: state.otherPage[index].pageContent))),
+              itemBuilder: ((context, index) => setDrawerItem(
+                  state.otherPage[index].title!,
+                  Icons.info_rounded,
+                  false,
+                  true,
+                  false,
+                  7,
+                  image: state.otherPage[index].image!,
+                  desc: state.otherPage[index].pageContent))),
         );
       } else {
         //state is OtherPageFetchInProgress || state is OtherPageInitial || state is OtherPageFetchFailure
@@ -91,7 +101,8 @@ class ProfileScreenState extends State<ProfileScreen> {
         UiUtils.setUIOverlayStyle(appTheme: AppTheme.Dark);
         //for non-appbar screens
       } else {
-        showSnackBar(UiUtils.getTranslatedLabel(context, 'internetmsg'), context);
+        showSnackBar(
+            UiUtils.getTranslatedLabel(context, 'internetmsg'), context);
       }
     } else {
       if (await InternetConnectivity.isNetworkAvailable()) {
@@ -100,17 +111,21 @@ class ProfileScreenState extends State<ProfileScreen> {
         UiUtils.setUIOverlayStyle(appTheme: AppTheme.Light);
         //for non-appbar screens
       } else {
-        showSnackBar(UiUtils.getTranslatedLabel(context, 'internetmsg'), context);
+        showSnackBar(
+            UiUtils.getTranslatedLabel(context, 'internetmsg'), context);
       }
     }
   }
 
   bool getTheme() {
-    return (context.read<ThemeCubit>().state.appTheme == AppTheme.Dark) ? true : false;
+    return (context.read<ThemeCubit>().state.appTheme == AppTheme.Dark)
+        ? true
+        : false;
   }
 
   bool getNotification() {
-    if (context.read<SettingsCubit>().state.settingsModel!.notification == true) {
+    if (context.read<SettingsCubit>().state.settingsModel!.notification ==
+        true) {
       return true;
     } else {
       return false;
@@ -123,7 +138,9 @@ class ProfileScreenState extends State<ProfileScreen> {
   }
 
   //set drawer item list
-  Widget setDrawerItem(String title, IconData? icon, bool isTrailing, bool isNavigate, bool isSwitch, int id, {String? image, String? desc}) {
+  Widget setDrawerItem(String title, IconData? icon, bool isTrailing,
+      bool isNavigate, bool isSwitch, int id,
+      {String? image, String? desc}) {
     return ListTile(
       dense: true,
       leading: (image != null && image != "")
@@ -152,41 +169,49 @@ class ProfileScreenState extends State<ProfileScreen> {
                       inactiveThumbColor: Colors.grey,
                       inactiveTrackColor: Colors.grey)))
           : const SizedBox.shrink(),
-      title: CustomTextLabel(text: title, textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(color: UiUtils.getColorScheme(context).primaryContainer)),
+      title: CustomTextLabel(
+          text: title,
+          textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: UiUtils.getColorScheme(context).primaryContainer)),
       onTap: () {
         if (isNavigate) {
           switch (id) {
             case 2:
-              Navigator.of(context).pushNamed(Routes.languageList, arguments: {"from": 2});
+              Navigator.of(context)
+                  .pushNamed(Routes.languageList, arguments: {"from": 2});
               break;
             case 3:
               Navigator.of(context).pushNamed(Routes.bookmark);
               break;
             case 4:
-              Navigator.of(context).pushNamed(Routes.addNews, arguments: {"isEdit": false, "from": "profile"});
+              Navigator.of(context).pushNamed(Routes.addNews,
+                  arguments: {"isEdit": false, "from": "profile"});
               break;
             case 5:
               Navigator.of(context).pushNamed(Routes.showNews);
               break;
             case 6:
-              Navigator.of(context).pushNamed(Routes.managePref, arguments: {"from": 1});
+              Navigator.of(context)
+                  .pushNamed(Routes.managePref, arguments: {"from": 1});
               break;
             case 7:
-              Navigator.of(context).pushNamed(Routes.privacy, arguments: {"from": "setting", "title": title, "desc": desc});
+              Navigator.of(context).pushNamed(Routes.privacy,
+                  arguments: {"from": "setting", "title": title, "desc": desc});
               break;
             case 8:
               _openStoreListing();
               break;
             case 9:
-              var str = "$appName\n\n${UiUtils.getTranslatedLabel(context, 'shareMsg')}\n\n$androidLbl\n$androidLink$packageName";
+              var str =
+                  "$appName\n\n${UiUtils.getTranslatedLabel(context, 'shareMsg')}\n\n$androidLbl\n$androidLink$packageName";
               if (iosLink.isNotEmpty) str += "\n\n $iosLbl:\n$iosLink";
               Share.share(str);
               break;
             case 10:
               logOutDailog();
-              break;
-            case 11:
-              deleteAccount();
+              //   break;
+              // case 11:
+              //   deleteAccount();
               break;
             default:
               break;
@@ -200,7 +225,8 @@ class ProfileScreenState extends State<ProfileScreen> {
     await showDialog(
         context: context,
         builder: (BuildContext context) {
-          return StatefulBuilder(builder: (BuildContext context, StateSetter setStater) {
+          return StatefulBuilder(
+              builder: (BuildContext context, StateSetter setStater) {
             return CustomAlertDialog(
                 context: context,
                 yesButtonText: 'yesLbl',
@@ -208,7 +234,14 @@ class ProfileScreenState extends State<ProfileScreen> {
                 noButtonText: 'noLbl',
                 imageName: 'logout',
                 titleWidget: CustomTextLabel(
-                    text: 'logoutLbl', textStyle: Theme.of(this.context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800, color: UiUtils.getColorScheme(context).primaryContainer)),
+                    text: 'logoutLbl',
+                    textStyle: Theme.of(this.context)
+                        .textTheme
+                        .titleLarge
+                        ?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            color: UiUtils.getColorScheme(context)
+                                .primaryContainer)),
                 messageText: 'logoutTxt',
                 onYESButtonPressed: () async {
                   UiUtils.userLogOut(contxt: context);
@@ -222,21 +255,46 @@ class ProfileScreenState extends State<ProfileScreen> {
     await showDialog(
         context: context,
         builder: (BuildContext context) {
-          return StatefulBuilder(builder: (BuildContext context, StateSetter setStater) {
+          return StatefulBuilder(
+              builder: (BuildContext context, StateSetter setStater) {
             return CustomAlertDialog(
                 context: context,
-                yesButtonText: (_auth.currentUser != null) ? 'yesLbl' : 'logoutLbl',
-                yesButtonTextPostfix: (_auth.currentUser != null) ? 'deleteTxt' : '',
-                noButtonText: (_auth.currentUser != null) ? 'noLbl' : 'cancelBtn',
+                yesButtonText: (_auth.currentUser != null)
+                    ? 'yesLbl'
+                    : 'logoutLbl',
+                yesButtonTextPostfix: (_auth.currentUser != null)
+                    ? 'deleteTxt'
+                    : '',
+                noButtonText: (_auth.currentUser != null)
+                    ? 'noLbl'
+                    : 'cancelBtn',
                 imageName: 'deleteAccount',
                 titleWidget: (_auth.currentUser != null)
                     ? CustomTextLabel(
-                        text: 'deleteAcc', textStyle: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800, color: UiUtils.getColorScheme(context).primaryContainer))
+                        text: 'deleteAcc',
+                        textStyle: Theme.of(context)
+                            .textTheme
+                            .titleLarge
+                            ?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                color: UiUtils.getColorScheme(context)
+                                    .primaryContainer))
                     : CustomTextLabel(
-                        text: 'deleteAlertTitle', textStyle: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800, color: UiUtils.getColorScheme(context).primaryContainer)),
-                messageText: (_auth.currentUser != null) ? 'deleteConfirm' : 'deleteRelogin',
+                        text: 'deleteAlertTitle',
+                        textStyle: Theme.of(context)
+                            .textTheme
+                            .titleLarge
+                            ?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                color: UiUtils.getColorScheme(context)
+                                    .primaryContainer)),
+                messageText: (_auth.currentUser != null)
+                    ? 'deleteConfirm'
+                    : 'deleteRelogin',
                 onYESButtonPressed: () async {
-                  (_auth.currentUser != null) ? proceedToDeleteProfile() : askToLoginAgain();
+                  (_auth.currentUser != null)
+                      ? proceedToDeleteProfile()
+                      : askToLoginAgain();
                 });
           });
         });
@@ -244,7 +302,8 @@ class ProfileScreenState extends State<ProfileScreen> {
 
   askToLoginAgain() {
     showSnackBar(UiUtils.getTranslatedLabel(context, 'loginReqMsg'), context);
-    Navigator.of(context).pushNamedAndRemoveUntil(Routes.login, (route) => false);
+    Navigator.of(context)
+        .pushNamedAndRemoveUntil(Routes.login, (route) => false);
   }
 
   proceedToDeleteProfile() async {
@@ -252,12 +311,21 @@ class ProfileScreenState extends State<ProfileScreen> {
     try {
       await _auth.currentUser!.delete().then((value) {
         //delete user prefs from App-local
-        context.read<DeleteUserCubit>().setDeleteUser(userId: context.read<AuthCubit>().getUserId(), context: context).then((value) {
+        context
+            .read<DeleteUserCubit>()
+            .setDeleteUser(
+                userId: context.read<AuthCubit>().getUserId(), context: context)
+            .then((value) {
           showSnackBar(value["message"], context);
           for (int i = 0; i < AuthProviders.values.length; i++) {
-            if (AuthProviders.values[i].name == context.read<AuthCubit>().getType()) {
-              context.read<AuthCubit>().signOut(AuthProviders.values[i]).then((value) {
-                Navigator.of(context).pushNamedAndRemoveUntil(Routes.login, (route) => false);
+            if (AuthProviders.values[i].name ==
+                context.read<AuthCubit>().getType()) {
+              context
+                  .read<AuthCubit>()
+                  .signOut(AuthProviders.values[i])
+                  .then((value) {
+                Navigator.of(context)
+                    .pushNamedAndRemoveUntil(Routes.login, (route) => false);
               });
             }
           }
@@ -266,9 +334,14 @@ class ProfileScreenState extends State<ProfileScreen> {
     } on FirebaseAuthException catch (error) {
       if (error.code == "requires-recent-login") {
         for (int i = 0; i < AuthProviders.values.length; i++) {
-          if (AuthProviders.values[i].name == context.read<AuthCubit>().getType()) {
-            context.read<AuthCubit>().signOut(AuthProviders.values[i]).then((value) {
-              Navigator.of(context).pushNamedAndRemoveUntil(Routes.login, (route) => false);
+          if (AuthProviders.values[i].name ==
+              context.read<AuthCubit>().getType()) {
+            context
+                .read<AuthCubit>()
+                .signOut(AuthProviders.values[i])
+                .then((value) {
+              Navigator.of(context)
+                  .pushNamedAndRemoveUntil(Routes.login, (route) => false);
             });
           }
         }
@@ -287,76 +360,121 @@ class ProfileScreenState extends State<ProfileScreen> {
 
   Widget setHeader() {
     return BlocBuilder<AuthCubit, AuthState>(builder: (context, authState) {
-      if (authState is Authenticated && context.read<AuthCubit>().getUserId() != "0") {
-        return Row(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-          Align(
-            alignment: Alignment.centerLeft,
-            child: CircleAvatar(
-              radius: 36,
-              backgroundColor: UiUtils.getColorScheme(context).secondaryContainer,
-              child: CircleAvatar(
-                radius: 34,
-                backgroundColor: Colors.transparent,
-                child: ClipOval(
-                    clipBehavior: Clip.antiAliasWithSaveLayer,
-                    child: (authState.authModel.profile != null && authState.authModel.profile.toString().trim().isNotEmpty)
-                        ? Image.network(
-                            authState.authModel.profile!,
-                            fit: BoxFit.fill,
-                            width: 80,
-                            height: 80,
-                            filterQuality: FilterQuality.high,
-                            errorBuilder: (context, error, stackTrace) {
-                              return const Icon(Icons.person);
-                            },
-                          )
-                        : Icon(Icons.person, color: UiUtils.getColorScheme(context).primaryContainer)),
+      if (authState is Authenticated &&
+          context.read<AuthCubit>().getUserId() != "0") {
+        return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Align(
+                alignment: Alignment.centerLeft,
+                child: CircleAvatar(
+                  radius: 36,
+                  backgroundColor:
+                      UiUtils.getColorScheme(context).secondaryContainer,
+                  child: CircleAvatar(
+                    radius: 34,
+                    backgroundColor: Colors.transparent,
+                    child: ClipOval(
+                        clipBehavior: Clip.antiAliasWithSaveLayer,
+                        child: (authState.authModel.profile != null &&
+                                authState.authModel.profile
+                                    .toString()
+                                    .trim()
+                                    .isNotEmpty)
+                            ? Image.network(
+                                authState.authModel.profile!,
+                                fit: BoxFit.fill,
+                                width: 80,
+                                height: 80,
+                                filterQuality: FilterQuality.high,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Icon(Icons.person);
+                                },
+                              )
+                            : Icon(Icons.person,
+                                color: UiUtils.getColorScheme(context)
+                                    .primaryContainer)),
+                  ),
+                ),
               ),
-            ),
-          ),
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.6,
-            child: Padding(
-              padding: const EdgeInsetsDirectional.only(start: 20),
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  if (authState.authModel.name != null && authState.authModel.name != "")
-                    CustomTextLabel(
-                        text: authState.authModel.name!,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800, color: UiUtils.getColorScheme(context).primaryContainer)),
-                  const SizedBox(height: 3),
-                  if (authState.authModel.mobile != null && authState.authModel.mobile!.trim().isNotEmpty)
-                    CustomTextLabel(
-                        text: authState.authModel.mobile!, textStyle: Theme.of(context).textTheme.titleSmall?.copyWith(color: UiUtils.getColorScheme(context).primaryContainer.withOpacity(0.7))),
-                  const SizedBox(height: 3),
-                  if (authState.authModel.email != null && authState.authModel.email != "")
-                    CustomTextLabel(
-                        text: authState.authModel.email!,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        textStyle: Theme.of(context).textTheme.titleSmall?.copyWith(color: UiUtils.getColorScheme(context).primaryContainer.withOpacity(0.7))),
-                ],
+              SizedBox(
+                width: MediaQuery.of(context).size.width * 0.6,
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.only(start: 20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      if (authState.authModel.name != null &&
+                          authState.authModel.name != "")
+                        CustomTextLabel(
+                            text: authState.authModel.name!,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            textStyle: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    color: UiUtils.getColorScheme(context)
+                                        .primaryContainer)),
+                      const SizedBox(height: 3),
+                      if (authState.authModel.mobile != null &&
+                          authState.authModel.mobile!.trim().isNotEmpty)
+                        CustomTextLabel(
+                            text: authState.authModel.mobile!,
+                            textStyle: Theme.of(context)
+                                .textTheme
+                                .titleSmall
+                                ?.copyWith(
+                                    color: UiUtils.getColorScheme(context)
+                                        .primaryContainer
+                                        .withOpacity(0.7))),
+                      const SizedBox(height: 3),
+                      if (authState.authModel.email != null &&
+                          authState.authModel.email != "")
+                        CustomTextLabel(
+                            text: authState.authModel.email!,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            textStyle: Theme.of(context)
+                                .textTheme
+                                .titleSmall
+                                ?.copyWith(
+                                    color: UiUtils.getColorScheme(context)
+                                        .primaryContainer
+                                        .withOpacity(0.7))),
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ),
-          GestureDetector(onTap: () => Navigator.of(context).pushNamed(Routes.editUserProfile, arguments: {'from': 'profile'}), child: const Icon(Icons.edit_rounded))
-        ]);
+              GestureDetector(
+                  onTap: () => Navigator.of(context).pushNamed(
+                      Routes.editUserProfile,
+                      arguments: {'from': 'profile'}),
+                  child: const Icon(Icons.edit_rounded))
+            ]);
       } else {
-        return Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: <Widget>[
-          //For Guest User
-          Container(
-              margin: const EdgeInsets.only(top: 10.0, bottom: 10.0),
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: UiUtils.getColorScheme(context).primaryContainer)),
-              alignment: Alignment.center,
-              child: Icon(Icons.person, size: 40.0, color: UiUtils.getColorScheme(context).primaryContainer)),
-          SizedBox(width: MediaQuery.of(context).size.width * 0.05),
-          Expanded(child: setGuestText())
-        ]);
+        return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: <Widget>[
+              //For Guest User
+              Container(
+                  margin: const EdgeInsets.only(top: 10.0, bottom: 10.0),
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                          color: UiUtils.getColorScheme(context)
+                              .primaryContainer)),
+                  alignment: Alignment.center,
+                  child: Icon(Icons.person,
+                      size: 40.0,
+                      color: UiUtils.getColorScheme(context).primaryContainer)),
+              SizedBox(width: MediaQuery.of(context).size.width * 0.05),
+              Expanded(child: setGuestText())
+            ]);
       }
     });
   }
@@ -367,11 +485,16 @@ class ProfileScreenState extends State<ProfileScreen> {
         return RichText(
           text: TextSpan(
             text: UiUtils.getTranslatedLabel(context, 'plzLbl'),
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(color: UiUtils.getColorScheme(context).primaryContainer, overflow: TextOverflow.ellipsis),
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: UiUtils.getColorScheme(context).primaryContainer,
+                overflow: TextOverflow.ellipsis),
             children: <TextSpan>[
               TextSpan(
                   text: " ${UiUtils.getTranslatedLabel(context, 'loginBtn')} ",
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Theme.of(context).primaryColor, fontWeight: FontWeight.w600, overflow: TextOverflow.ellipsis),
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: Theme.of(context).primaryColor,
+                      fontWeight: FontWeight.w600,
+                      overflow: TextOverflow.ellipsis),
                   recognizer: TapGestureRecognizer()
                     ..onTap = () {
                       Future.delayed(const Duration(milliseconds: 500), () {
@@ -381,10 +504,15 @@ class ProfileScreenState extends State<ProfileScreen> {
                       });
                     }),
               TextSpan(
-                  text: "${UiUtils.getTranslatedLabel(context, 'firstAccLbl')} ", style: Theme.of(context).textTheme.titleMedium?.copyWith(color: UiUtils.getColorScheme(context).primaryContainer)),
+                  text:
+                      "${UiUtils.getTranslatedLabel(context, 'firstAccLbl')} ",
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: UiUtils.getColorScheme(context).primaryContainer)),
               TextSpan(
                   text: UiUtils.getTranslatedLabel(context, 'allFunLbl'),
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(color: UiUtils.getColorScheme(context).primaryContainer, overflow: TextOverflow.ellipsis))
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: UiUtils.getColorScheme(context).primaryContainer,
+                      overflow: TextOverflow.ellipsis))
             ],
           ),
         );
@@ -397,7 +525,9 @@ class ProfileScreenState extends State<ProfileScreen> {
       padding: const EdgeInsets.only(top: 20.0),
       child: Container(
           padding: const EdgeInsetsDirectional.only(start: 20.0, end: 20.0),
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(15.0), color: Theme.of(context).colorScheme.background),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15.0),
+              color: Theme.of(context).colorScheme.background),
           child: ScrollConfiguration(
             behavior: GlobalScrollBehavior(),
             child: BlocBuilder<AuthCubit, AuthState>(
@@ -407,18 +537,35 @@ class ProfileScreenState extends State<ProfileScreen> {
                   shrinkWrap: true,
                   physics: const BouncingScrollPhysics(),
                   children: <Widget>[
-                    setDrawerItem('darkModeLbl', Icons.swap_horizontal_circle, true, false, true, 0),
-                    setDrawerItem('notificationLbl', Icons.notifications_rounded, true, false, true, 1),
-                    setDrawerItem('changeLang', Icons.g_translate_rounded, false, true, false, 2),
-                    if (context.read<AuthCubit>().getUserId() != "0") setDrawerItem('bookmarkLbl', Icons.bookmarks_rounded, false, true, false, 3),
-                    if (context.read<AuthCubit>().getUserId() != "0" && context.read<AuthCubit>().getRole() != "0") setDrawerItem('createNewsLbl', Icons.add_box_rounded, false, true, false, 4),
-                    if (context.read<AuthCubit>().getUserId() != "0" && context.read<AuthCubit>().getRole() != "0") setDrawerItem('manageNewsLbl', Icons.edit_document, false, true, false, 5),
-                    if (context.read<AuthCubit>().getUserId() != "0") setDrawerItem('managePreferences', Icons.thumbs_up_down_rounded, false, true, false, 6),
+                    setDrawerItem('darkModeLbl', Icons.swap_horizontal_circle,
+                        true, false, true, 0),
+                    setDrawerItem('notificationLbl',
+                        Icons.notifications_rounded, true, false, true, 1),
+                    setDrawerItem('changeLang', Icons.g_translate_rounded,
+                        false, true, false, 2),
+                    if (context.read<AuthCubit>().getUserId() != "0")
+                      setDrawerItem('bookmarkLbl', Icons.bookmarks_rounded,
+                          false, true, false, 3),
+                    if (context.read<AuthCubit>().getUserId() != "0" &&
+                        context.read<AuthCubit>().getRole() != "0")
+                      setDrawerItem('createNewsLbl', Icons.add_box_rounded,
+                          false, true, false, 4),
+                    if (context.read<AuthCubit>().getUserId() != "0" &&
+                        context.read<AuthCubit>().getRole() != "0")
+                      setDrawerItem('manageNewsLbl', Icons.edit_document, false,
+                          true, false, 5),
+                    if (context.read<AuthCubit>().getUserId() != "0")
+                      setDrawerItem('managePreferences',
+                          Icons.thumbs_up_down_rounded, false, true, false, 6),
                     pagesBuild(),
-                    setDrawerItem('rateUs', Icons.stars_sharp, false, true, false, 8),
-                    setDrawerItem('shareApp', Icons.share_rounded, false, true, false, 9),
-                    if (context.read<AuthCubit>().getUserId() != "0") setDrawerItem('logoutLbl', Icons.logout_rounded, false, true, false, 10),
-                    if (context.read<AuthCubit>().getUserId() != "0") setDrawerItem('deleteAcc', Icons.delete_forever_rounded, false, true, false, 11),
+                    setDrawerItem(
+                        'rateUs', Icons.stars_sharp, false, true, false, 8),
+                    setDrawerItem(
+                        'shareApp', Icons.share_rounded, false, true, false, 9),
+                    if (context.read<AuthCubit>().getUserId() != "0")
+                      setDrawerItem('logoutLbl', Icons.logout_rounded, false,
+                          true, false, 10),
+                    // if (context.read<AuthCubit>().getUserId() != "0") setDrawerItem('deleteAcc', Icons.delete_forever_rounded, false, true, false, 11),
                   ],
                 );
               },
@@ -434,8 +581,12 @@ class ProfileScreenState extends State<ProfileScreen> {
             body: Stack(
       children: [
         SingleChildScrollView(
-            padding: const EdgeInsetsDirectional.only(start: 15.0, end: 15.0, top: 25.0, bottom: 10.0),
-            child: Column(mainAxisAlignment: MainAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: <Widget>[setHeader(), setBody()])),
+            padding: const EdgeInsetsDirectional.only(
+                start: 15.0, end: 15.0, top: 25.0, bottom: 10.0),
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[setHeader(), setBody()])),
       ],
     )));
   }

@@ -1,12 +1,14 @@
 // ignore_for_file: file_names
 
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hive/hive.dart';
+import 'package:news/cubits/Auth/authCubit.dart';
 import 'package:news/cubits/Auth/registerTokenCubit.dart';
 import 'package:news/cubits/appLocalizationCubit.dart';
 import 'package:news/cubits/languageJsonCubit.dart';
@@ -41,15 +43,22 @@ class SplashState extends State<Splash> with TickerProviderStateMixin {
     fetchAppConfigurations();
 
     FirebaseMessaging.instance.getToken().then((token) async {
-      if (token != null) context.read<RegisterTokenCubit>().registerToken(fcmId: token, context: context);
-      if (token != context.read<SettingsCubit>().getSettings().token && token != null) {
+      if (token != null)
+        context
+            .read<RegisterTokenCubit>()
+            .registerToken(fcmId: token, context: context);
+      if (token != context.read<SettingsCubit>().getSettings().token &&
+          token != null) {
         context.read<SettingsCubit>().changeToken(token);
       }
     });
 
-    _slideControllerBottom = AnimationController(vsync: this, duration: const Duration(seconds: 3));
-    _splashIconController = AnimationController(vsync: this, duration: const Duration(seconds: 1));
-    _newsImgController = AnimationController(vsync: this, duration: const Duration(seconds: 2));
+    _slideControllerBottom =
+        AnimationController(vsync: this, duration: const Duration(seconds: 3));
+    _splashIconController =
+        AnimationController(vsync: this, duration: const Duration(seconds: 1));
+    _newsImgController =
+        AnimationController(vsync: this, duration: const Duration(seconds: 2));
 
     changeOpacity();
   }
@@ -61,15 +70,20 @@ class SplashState extends State<Splash> with TickerProviderStateMixin {
   }
 
   fetchLanguages({required AppConfigurationFetchSuccess state}) async {
-    String? currentLanguage = Hive.box(settingsBoxKey).get(currentLanguageCodeKey);
+    String? currentLanguage =
+        Hive.box(settingsBoxKey).get(currentLanguageCodeKey);
     if (currentLanguage == null) {
       //default language effects only for first time.
-      context
-          .read<AppLocalizationCubit>()
-          .changeLanguage(state.appConfiguration.defaultLanDataModel![0].code!, state.appConfiguration.defaultLanDataModel![0].id!, state.appConfiguration.defaultLanDataModel![0].isRTL!);
-      context.read<LanguageJsonCubit>().fetchCurrentLanguageAndLabels(state.appConfiguration.defaultLanDataModel![0].code!);
+      context.read<AppLocalizationCubit>().changeLanguage(
+          state.appConfiguration.defaultLanDataModel![0].code!,
+          state.appConfiguration.defaultLanDataModel![0].id!,
+          state.appConfiguration.defaultLanDataModel![0].isRTL!);
+      context.read<LanguageJsonCubit>().fetchCurrentLanguageAndLabels(
+          state.appConfiguration.defaultLanDataModel![0].code!);
     } else {
-      context.read<LanguageJsonCubit>().fetchCurrentLanguageAndLabels(currentLanguage);
+      context
+          .read<LanguageJsonCubit>()
+          .fetchCurrentLanguageAndLabels(currentLanguage);
     }
   }
 
@@ -91,7 +105,12 @@ class SplashState extends State<Splash> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    if (Platform.isAndroid) UiUtils.setUIOverlayStyle(appTheme: context.read<ThemeCubit>().state.appTheme); //set UiOverlayStyle according to selected theme
+    if (Platform.isAndroid)
+      UiUtils.setUIOverlayStyle(
+          appTheme: context
+              .read<ThemeCubit>()
+              .state
+              .appTheme); //set UiOverlayStyle according to selected theme
     return Scaffold(backgroundColor: backgroundColor, body: buildScale());
   }
 
@@ -101,7 +120,8 @@ class SplashState extends State<Splash> with TickerProviderStateMixin {
       if (currentSettings!.showIntroSlider) {
         Navigator.of(context).pushReplacementNamed(Routes.introSlider);
       } else {
-        Navigator.of(context).pushReplacementNamed(Routes.home, arguments: false);
+        Navigator.of(context)
+            .pushReplacementNamed(Routes.home, arguments: false);
       }
     });
   }
@@ -115,43 +135,72 @@ class SplashState extends State<Splash> with TickerProviderStateMixin {
           }
         },
         builder: (context, state) {
-          return BlocConsumer<LanguageJsonCubit, LanguageJsonState>(
-              bloc: context.read<LanguageJsonCubit>(),
-              listener: (context, state) {
-                if (state is LanguageJsonFetchSuccess) {
-                  navigationPage();
-                }
-              },
-              builder: (context, langState) {
-                if (state is AppConfigurationFetchFailure) {
-                  return ErrorContainerWidget(
-                    errorMsg: (state.errorMessage.contains(ErrorMessageKeys.noInternet)) ? UiUtils.getTranslatedLabel(context, 'internetmsg') : state.errorMessage,
-                    onRetry: () {
-                      fetchAppConfigurations();
-                    },
-                  );
-                } else if (langState is LanguageJsonFetchFailure) {
-                  return ErrorContainerWidget(
-                    errorMsg: (langState.errorMessage.contains(ErrorMessageKeys.noInternet)) ? UiUtils.getTranslatedLabel(context, 'internetmsg') : langState.errorMessage,
-                    onRetry: () {
-                      fetchLanguages(state: state as AppConfigurationFetchSuccess);
-                    },
-                  );
-                } else {
-                  return Container(
-                    width: double.maxFinite,
-                    decoration: const BoxDecoration(color: darkSecondaryColor),
-                    child: Column(mainAxisSize: MainAxisSize.min, children: [const SizedBox(height: 220), splashLogoIcon(), newsTextIcon(), subTitle(), const Spacer(), bottomText()]),
-                  );
-                }
-              });
+          return BlocBuilder<AuthCubit, AuthState>(
+              builder: (context, stateAuth) {
+            return BlocConsumer<LanguageJsonCubit, LanguageJsonState>(
+                bloc: context.read<LanguageJsonCubit>(),
+                listener: (context, state) {
+                  if (state is LanguageJsonFetchSuccess) {
+                    if (stateAuth is! Authenticated) {
+                      log('hhhh');
+                      log('d');
+                      log('dd');
+                      log('dd');
+
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                          Routes.login, (route) => false);
+                    } else
+                      navigationPage();
+                  }
+                },
+                builder: (context, langState) {
+                  if (state is AppConfigurationFetchFailure) {
+                    return ErrorContainerWidget(
+                      errorMsg: (state.errorMessage
+                              .contains(ErrorMessageKeys.noInternet))
+                          ? UiUtils.getTranslatedLabel(context, 'internetmsg')
+                          : state.errorMessage,
+                      onRetry: () {
+                        fetchAppConfigurations();
+                      },
+                    );
+                  } else if (langState is LanguageJsonFetchFailure) {
+                    return ErrorContainerWidget(
+                      errorMsg: (langState.errorMessage
+                              .contains(ErrorMessageKeys.noInternet))
+                          ? UiUtils.getTranslatedLabel(context, 'internetmsg')
+                          : langState.errorMessage,
+                      onRetry: () {
+                        fetchLanguages(
+                            state: state as AppConfigurationFetchSuccess);
+                      },
+                    );
+                  } else {
+                    return Container(
+                      width: double.maxFinite,
+                      decoration:
+                          const BoxDecoration(color: darkSecondaryColor),
+                      child: Column(mainAxisSize: MainAxisSize.min, children: [
+                        const SizedBox(height: 220),
+                        splashLogoIcon(),
+                        newsTextIcon(),
+                        subTitle(),
+                        const Spacer(),
+                        bottomText()
+                      ]),
+                    );
+                  }
+                });
+          });
         });
   }
 
   bool isMaskOpen = true; // A flag to control the animation
 
   Widget splashLogoIcon() {
-    return Center(child: SvgPicture.asset(UiUtils.getSvgImagePath("splash_icon"), height: 110.0, fit: BoxFit.fill));
+    return Center(
+        child: SvgPicture.asset(UiUtils.getSvgImagePath("splash_icon"),
+            height: 110.0, fit: BoxFit.fill));
   }
 
   Widget newsTextIcon() {
@@ -163,7 +212,8 @@ class SplashState extends State<Splash> with TickerProviderStateMixin {
             itemCount: 4,
             slideDirection: SlideDirection.fromLeft,
             animationController: _newsImgController!,
-            child: SvgPicture.asset(UiUtils.getSvgImagePath("news"), height: 25.0, fit: BoxFit.fill)),
+            child: SvgPicture.asset(UiUtils.getSvgImagePath("news"),
+                height: 25.0, fit: BoxFit.fill)),
       ),
     );
   }
@@ -174,8 +224,11 @@ class SplashState extends State<Splash> with TickerProviderStateMixin {
         duration: const Duration(seconds: 1),
         child: Container(
           margin: const EdgeInsets.only(top: 20.0),
-          child:
-              CustomTextLabel(text: 'fastTrendNewsLbl', textAlign: TextAlign.center, textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(color: backgroundColor, fontWeight: FontWeight.bold)),
+          child: CustomTextLabel(
+              text: 'fastTrendNewsLbl',
+              textAlign: TextAlign.center,
+              textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  color: backgroundColor, fontWeight: FontWeight.bold)),
         ));
   }
 
@@ -192,6 +245,7 @@ class SplashState extends State<Splash> with TickerProviderStateMixin {
         itemCount: 2,
         slideDirection: SlideDirection.fromBottom,
         animationController: _slideControllerBottom!,
-        child: SvgPicture.asset(UiUtils.getSvgImagePath("wrteam_logo"), height: 40.0, fit: BoxFit.fill));
+        child: SvgPicture.asset(UiUtils.getSvgImagePath("wrteam_logo"),
+            height: 40.0, fit: BoxFit.fill));
   }
 }

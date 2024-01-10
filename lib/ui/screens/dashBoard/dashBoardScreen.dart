@@ -44,7 +44,11 @@ class DashBoardState extends State<DashBoard> {
   int _selectedIndex = 0;
   List<IconData> iconList = [];
   bool shouldPopScope = false;
-
+// authState.authModel.profile != null &&
+//                                 authState.authModel.profile
+//                                     .toString()
+//                                     .trim()
+//                                     .isNotEmpty
   @override
   void initState() {
     homeScreenKey = GlobalKey<HomeScreenState>();
@@ -52,7 +56,8 @@ class DashBoardState extends State<DashBoard> {
       Icons.home_rounded,
       Icons.video_collection_rounded,
       //Add only if Category Mode is enabled From Admin panel.
-      if (context.read<AppConfigurationCubit>().getCategoryMode() == "1") Icons.grid_view_rounded,
+      if (context.read<AppConfigurationCubit>().getCategoryMode() == "1")
+        Icons.grid_view_rounded,
       Icons.notifications_rounded,
       Icons.settings_rounded,
     ];
@@ -60,7 +65,8 @@ class DashBoardState extends State<DashBoard> {
       HomeScreen(key: homeScreenKey),
       const VideoScreen(),
       //Add only if Category Mode is enabled From Admin panel.
-      if (context.read<AppConfigurationCubit>().getCategoryMode() == "1") const CategoryScreen(),
+      if (context.read<AppConfigurationCubit>().getCategoryMode() == "1")
+        const CategoryScreen(),
       const NotificationScreen(),
       const ProfileScreen(),
     ];
@@ -70,10 +76,22 @@ class DashBoardState extends State<DashBoard> {
   }
 
   void checkForPengingNotifications() {
-    if (isNotificationReceivedInbg != null && notificationNewsId != null && isNotificationReceivedInbg!) {
-      context.read<NewsByIdCubit>().getNewsById(newsId: notificationNewsId!, langId: context.read<AppLocalizationCubit>().state.id, userId: context.read<AuthCubit>().getUserId()).then((value) {
+    if (isNotificationReceivedInbg != null &&
+        notificationNewsId != null &&
+        isNotificationReceivedInbg!) {
+      context
+          .read<NewsByIdCubit>()
+          .getNewsById(
+              newsId: notificationNewsId!,
+              langId: context.read<AppLocalizationCubit>().state.id,
+              userId: context.read<AuthCubit>().getUserId())
+          .then((value) {
         if (value.isNotEmpty) {
-          Navigator.of(context).pushNamed(Routes.newsDetails, arguments: {"model": value[0], "isFromBreak": false, "fromShowMore": false});
+          Navigator.of(context).pushNamed(Routes.newsDetails, arguments: {
+            "model": value[0],
+            "isFromBreak": false,
+            "fromShowMore": false
+          });
         }
       });
     }
@@ -90,22 +108,45 @@ class DashBoardState extends State<DashBoard> {
         String isBreakingNews = deepLink.queryParameters['isBreakingNews']!;
         //to use it in Firebase payload in same file
         if (isBreakingNews == "true") {
-          context.read<BreakingNewsCubit>().getBreakingNews(context: context, langId: context.read<AppLocalizationCubit>().state.id).then((value) {
+          context
+              .read<BreakingNewsCubit>()
+              .getBreakingNews(
+                  context: context,
+                  langId: context.read<AppLocalizationCubit>().state.id)
+              .then((value) {
             if (value.isNotEmpty) {
               for (int i = 0; i < value.length; i++) {
                 if (value[i].id == id) {
-                  UiUtils.rootNavigatorKey.currentState!.pushNamed(Routes.newsDetails, arguments: {"breakModel": value[i], "isFromBreak": true, "fromShowMore": false});
+                  UiUtils.rootNavigatorKey.currentState!
+                      .pushNamed(Routes.newsDetails, arguments: {
+                    "breakModel": value[i],
+                    "isFromBreak": true,
+                    "fromShowMore": false
+                  });
                 }
               }
             }
           });
         } else {
-          context.read<NewsByIdCubit>().getNewsById(newsId: id, langId: context.read<AppLocalizationCubit>().state.id, userId: context.read<AuthCubit>().getUserId()).then((value) {
+          context
+              .read<NewsByIdCubit>()
+              .getNewsById(
+                  newsId: id,
+                  langId: context.read<AppLocalizationCubit>().state.id,
+                  userId: context.read<AuthCubit>().getUserId())
+              .then((value) {
             if (value.isNotEmpty) {
               if (isVideoID == 'true') {
-                UiUtils.rootNavigatorKey.currentState!.pushNamed(Routes.newsVideo, arguments: {"model": value[0], "from": 1});
+                UiUtils.rootNavigatorKey.currentState!.pushNamed(
+                    Routes.newsVideo,
+                    arguments: {"model": value[0], "from": 1});
               } else {
-                UiUtils.rootNavigatorKey.currentState!.pushNamed(Routes.newsDetails, arguments: {"model": value[0], "isFromBreak": false, "fromShowMore": false});
+                UiUtils.rootNavigatorKey.currentState!
+                    .pushNamed(Routes.newsDetails, arguments: {
+                  "model": value[0],
+                  "isFromBreak": false,
+                  "fromShowMore": false
+                });
               }
             }
           });
@@ -116,7 +157,8 @@ class DashBoardState extends State<DashBoard> {
     });
 
     // when your App Is Killed Or Open From Play store then this method will be called
-    final PendingDynamicLinkData? data = await FirebaseDynamicLinks.instance.getInitialLink();
+    final PendingDynamicLinkData? data =
+        await FirebaseDynamicLinks.instance.getInitialLink();
     if (data != null) {
       final Uri deepLink = data.link;
       if (Platform.isAndroid) {
@@ -125,22 +167,44 @@ class DashBoardState extends State<DashBoard> {
           String isVideoID = deepLink.queryParameters['isVideoId']!;
           String isBreakingNews = deepLink.queryParameters['isBreakingNews']!;
           if (isBreakingNews == "true") {
-            context.read<BreakingNewsCubit>().getBreakingNews(context: context, langId: context.read<AppLocalizationCubit>().state.id).then((value) {
+            context
+                .read<BreakingNewsCubit>()
+                .getBreakingNews(
+                    context: context,
+                    langId: context.read<AppLocalizationCubit>().state.id)
+                .then((value) {
               if (value.isNotEmpty) {
                 for (int i = 0; i < value.length; i++) {
                   if (value[i].id == id) {
-                    Navigator.of(context).pushNamed(Routes.newsDetails, arguments: {"breakModel": value[i], "isFromBreak": true, "fromShowMore": false});
+                    Navigator.of(context).pushNamed(Routes.newsDetails,
+                        arguments: {
+                          "breakModel": value[i],
+                          "isFromBreak": true,
+                          "fromShowMore": false
+                        });
                   }
                 }
               }
             });
           } else {
-            context.read<NewsByIdCubit>().getNewsById(newsId: id, langId: context.read<AppLocalizationCubit>().state.id, userId: context.read<AuthCubit>().getUserId()).then((value) {
+            context
+                .read<NewsByIdCubit>()
+                .getNewsById(
+                    newsId: id,
+                    langId: context.read<AppLocalizationCubit>().state.id,
+                    userId: context.read<AuthCubit>().getUserId())
+                .then((value) {
               if (value.isNotEmpty) {
                 if (isVideoID == 'true') {
-                  Navigator.of(context).pushNamed(Routes.newsVideo, arguments: {"model": value[0], "from": 1});
+                  Navigator.of(context).pushNamed(Routes.newsVideo,
+                      arguments: {"model": value[0], "from": 1});
                 } else {
-                  Navigator.of(context).pushNamed(Routes.newsDetails, arguments: {"model": value[0], "isFromBreak": false, "fromShowMore": false});
+                  Navigator.of(context).pushNamed(Routes.newsDetails,
+                      arguments: {
+                        "model": value[0],
+                        "isFromBreak": false,
+                        "fromShowMore": false
+                      });
                 }
               }
             });
@@ -157,7 +221,8 @@ class DashBoardState extends State<DashBoard> {
         _selectedIndex = 0;
         shouldPopScope = false;
       });
-    } else if (currentBackPressTime == null || now.difference(currentBackPressTime!) > const Duration(seconds: 2)) {
+    } else if (currentBackPressTime == null ||
+        now.difference(currentBackPressTime!) > const Duration(seconds: 2)) {
       currentBackPressTime = now;
       showSnackBar(UiUtils.getTranslatedLabel(context, 'exitWR'), context);
       setState(() => shouldPopScope = false);
@@ -177,12 +242,16 @@ class DashBoardState extends State<DashBoard> {
         width: MediaQuery.of(context).size.width / iconList.length,
         decoration: index == _selectedIndex
             ? BoxDecoration(
-                border: Border(top: BorderSide(width: 3, color: Theme.of(context).primaryColor)),
+                border: Border(
+                    top: BorderSide(
+                        width: 3, color: Theme.of(context).primaryColor)),
               )
             : null,
         child: Icon(
           icon,
-          color: index == _selectedIndex ? Theme.of(context).primaryColor : UiUtils.getColorScheme(context).outline,
+          color: index == _selectedIndex
+              ? Theme.of(context).primaryColor
+              : UiUtils.getColorScheme(context).outline,
         ),
       ),
     );
@@ -197,13 +266,22 @@ class DashBoardState extends State<DashBoard> {
     return Container(
         decoration: BoxDecoration(
           color: UiUtils.getColorScheme(context).secondary,
-          borderRadius: const BorderRadius.only(topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0)),
+          borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0)),
           boxShadow: [
-            BoxShadow(blurRadius: 6, offset: const Offset(5.0, 5.0), color: UiUtils.getColorScheme(context).primaryContainer.withOpacity(0.4), spreadRadius: 0),
+            BoxShadow(
+                blurRadius: 6,
+                offset: const Offset(5.0, 5.0),
+                color: UiUtils.getColorScheme(context)
+                    .primaryContainer
+                    .withOpacity(0.4),
+                spreadRadius: 0),
           ],
         ),
         child: ClipRRect(
-            borderRadius: const BorderRadius.only(topLeft: Radius.circular(10.0), topRight: Radius.circular(10.0)),
+            borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(10.0),
+                topRight: Radius.circular(10.0)),
             child: Row(
               children: navBarItemList,
             )));
@@ -211,11 +289,15 @@ class DashBoardState extends State<DashBoard> {
 
   @override
   Widget build(BuildContext context) {
-    UiUtils.setUIOverlayStyle(appTheme: context.read<ThemeCubit>().state.appTheme); //set UiOverlayStyle according to selected theme
-    return  WillPopScope(
-        onWillPop: () async {
-      return shouldPopScope;
-    },
+    UiUtils.setUIOverlayStyle(
+        appTheme: context
+            .read<ThemeCubit>()
+            .state
+            .appTheme); //set UiOverlayStyle according to selected theme
+    return WillPopScope(
+      onWillPop: () async {
+        return shouldPopScope;
+      },
       // PopScope(
       // canPop: shouldPopScope,
       // onPopInvoked: onWillPop,
@@ -223,8 +305,14 @@ class DashBoardState extends State<DashBoard> {
         listener: (context, state) {
           if (state is Authenticated) {
             Future.delayed(Duration.zero, () {
-              context.read<BookmarkCubit>().getBookmark(context: context, langId: context.read<AppLocalizationCubit>().state.id, userId: context.read<AuthCubit>().getUserId());
-              context.read<LikeAndDisLikeCubit>().getLikeAndDisLike(context: context, langId: context.read<AppLocalizationCubit>().state.id, userId: context.read<AuthCubit>().getUserId());
+              context.read<BookmarkCubit>().getBookmark(
+                  context: context,
+                  langId: context.read<AppLocalizationCubit>().state.id,
+                  userId: context.read<AuthCubit>().getUserId());
+              context.read<LikeAndDisLikeCubit>().getLikeAndDisLike(
+                  context: context,
+                  langId: context.read<AppLocalizationCubit>().state.id,
+                  userId: context.read<AuthCubit>().getUserId());
             });
           }
         },
